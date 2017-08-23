@@ -5,6 +5,7 @@
 
 package net.atomique.ksar.graph;
 
+import java.awt.Font;
 import net.atomique.ksar.Config;
 import net.atomique.ksar.GlobalOptions;
 import net.atomique.ksar.OSParser;
@@ -47,6 +48,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.text.SimpleDateFormat;
 
 import javax.swing.JCheckBox;
 
@@ -54,11 +56,11 @@ public class Graph {
 
   private static final Logger log = LoggerFactory.getLogger(Graph.class);
 
-  public Graph(kSar hissar, GraphConfig g, String Title, String hdrs, int skipcol,
-      SortedTreeNode pp) {
+  public Graph(kSar hissar, GraphConfig g, String Title, String hdrs, int skipcol, SortedTreeNode pp) {
     mysar = hissar;
     graphtitle = Title;
     graphconfig = g;
+    axisofdate.setDateFormatOverride(new SimpleDateFormat("MM-dd HH:mm"));
     printCheckBox = new JCheckBox(graphtitle, printSelected);
     printCheckBox.addItemListener(new java.awt.event.ItemListener() {
 
@@ -424,6 +426,8 @@ public class Graph {
       XYDataset c = create_collection(t);
       NumberAxis graphaxistitle = tmp.getAxis();
       XYPlot tmpplot = new XYPlot(c, axisofdate, graphaxistitle, renderer);
+      tmpplot.getDomainAxis().setLabelFont(new Font("MS ゴシック", Font.PLAIN, 10));
+      tmpplot.getRangeAxis().setLabelFont(new Font("MS ゴシック", Font.PLAIN, 10));
 
       if (tmpplot == null) {
         continue;
@@ -446,10 +450,12 @@ public class Graph {
       axisofdate.setRange(g_start.getStart(), g_end.getEnd());
     }
 
+    plot.setGap(20);
     plot.setOrientation(PlotOrientation.VERTICAL);
     JFreeChart mychart = new JFreeChart(graphtitle, Config.getDEFAULT_FONT(), plot, true);
     long endgenerate = System.currentTimeMillis();
     mychart.setBackgroundPaint(Color.white);
+    mychart.getLegend().setItemFont(new Font("MS ゴシック", Font.PLAIN, 12));
     if (GlobalOptions.isDodebug()) {
       log.debug("graph generation: {} ms", (endgenerate - begingenerate));
     }
