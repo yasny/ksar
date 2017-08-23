@@ -426,8 +426,8 @@ public class Graph {
       XYDataset c = create_collection(t);
       NumberAxis graphaxistitle = tmp.getAxis();
       XYPlot tmpplot = new XYPlot(c, axisofdate, graphaxistitle, renderer);
-      tmpplot.getDomainAxis().setLabelFont(new Font("MS ゴシック", Font.PLAIN, 10));
-      tmpplot.getRangeAxis().setLabelFont(new Font("MS ゴシック", Font.PLAIN, 10));
+      tmpplot.getDomainAxis().setLabelFont(new Font(Config.getGraphFont().getFontName(), Font.PLAIN, 10));
+      tmpplot.getRangeAxis().setLabelFont(new Font(Config.getGraphFont().getFontName(), Font.PLAIN, 10));
 
       if (tmpplot == null) {
         continue;
@@ -452,10 +452,13 @@ public class Graph {
 
     plot.setGap(20);
     plot.setOrientation(PlotOrientation.VERTICAL);
-    JFreeChart mychart = new JFreeChart(graphtitle, Config.getDEFAULT_FONT(), plot, true);
+	String graphTitleForUse = graphtitle;
+	if (Config.getUseHostnameInGraphTitle())
+		graphTitleForUse = "[" + ((OSParser)mysar.myparser).gethostName() + "] " + graphtitle;
+    JFreeChart mychart = new JFreeChart(graphTitleForUse, new Font(Config.getGraphFont().getFontName(), Font.BOLD, 18), plot, true);
     long endgenerate = System.currentTimeMillis();
     mychart.setBackgroundPaint(Color.white);
-    mychart.getLegend().setItemFont(new Font("MS ゴシック", Font.PLAIN, 12));
+    mychart.getLegend().setItemFont(new Font(Config.getGraphFont().getFontName(), Font.PLAIN, 12));
     if (GlobalOptions.isDodebug()) {
       log.debug("graph generation: {} ms", (endgenerate - begingenerate));
     }
