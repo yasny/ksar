@@ -54,7 +54,7 @@
             </Stat>
             <Stat name="dentunusd1">
                 <headerstr>dentunusd file-nr inode-nr pty-nr</headerstr>
-                <graphname>IGNORE</graphname>
+                <graphname>KERNEL_TABLES</graphname>
             </Stat>
             <Stat name="cpu2">
                 <headerstr>CPU %user %nice %system %idle</headerstr>
@@ -543,6 +543,11 @@
             <Graph name="CPU_MHZ" Title="CPU Frequency" type="multiple">
                 <Plot Title="frequency [MHz]">
                     <cols>MHz</cols>
+                </Plot>
+            </Graph>
+            <Graph name="KERNEL_TABLES" Title="KTables" type="unique">
+                <Plot Title="Entry Count">
+                    <cols>dentunusd file-nr inode-nr</cols>
                 </Plot>
             </Graph>
         </OSType>
