@@ -1,7 +1,7 @@
 /*
- * Copyright 2017 The kSAR Project. All rights reserved.
- * See the LICENSE file in the project root for more information.
- */
+* Copyright 2017 The kSAR Project. All rights reserved.
+* See the LICENSE file in the project root for more information.
+*/
 
 package net.atomique.ksar;
 
@@ -21,226 +21,258 @@ import java.util.prefs.Preferences;
 import javax.swing.UIManager;
 
 public class Config {
+	public static final int DEFAULT_IMAGE_WIDTH = 800;
+	public static final int DEFAULT_IMAGE_HEIGHT = 600;
+	public static final String DEFAULT_PAGE_FORMAT = "A4";
+	public static final String DEFAULT_LINUX_DATEFORMAT = "Always ask";
+	public static final String DEFAULT_FONT_NAME = "SansSerif";
+	public static final int DEFAULT_FONT_STYLE = Font.BOLD;
+	public static final int DEFAULT_FONT_SIZE = 18;
 
-  private static final Logger log = LoggerFactory.getLogger(GlobalOptions.class);
+	private static final Font DEFAULT_FONT = new Font(DEFAULT_FONT_NAME, DEFAULT_FONT_STYLE, DEFAULT_FONT_SIZE);
+	private static final Logger log = LoggerFactory.getLogger(GlobalOptions.class);
+	
+	private static String landf;
+	private static File lastReadDirectory;
+	private static File lastExportDirectory;
+	private static String lastCommand;
+	private static int number_host_history;
+	private static int local_configfile;
+	private static ArrayList<String> host_history = new ArrayList<>();
+	private static Font graphFont = DEFAULT_FONT;
+	private static boolean useHostnameInGraphTitle = true;
+	
+	private static String LinuxDateFormat;
+	private static String PDFPageFormat;
+	private static int ImageWidth;
+	private static int ImageHeight;
+	
+	private static Preferences myPref;
+	private static Config instance = new Config();
+	
+	static Config getInstance() {
+		return instance;
+	}
+	
+	private Config() {
+		
+		log.trace("load Config");
+		
+		myPref = Preferences.userNodeForPackage(Config.class);
+		if (myPref.getInt("local_configfile", -1) == -1) {
+			// new
+			try {
+				myPref.clear();
+				myPref.flush();
+			} catch (BackingStoreException e) {
+				log.error("BackingStoreException", e);
+			}
+			local_configfile = store_configdir();
+			myPref.putInt("local_configfile", local_configfile);
+			
+		}
+		load();
+	}
+	
+	private static void load() {
+		/*
+		* load default value or stored value
+		*/
+		setLandf(myPref.get("landf", UIManager.getLookAndFeel().getName()));
+		setLastReadDirectory(myPref.get("lastReadDirectory", null));
+		setLastExportDirectory(myPref.get("lastExportDirectory", null));
+		
+		setImageHeight(myPref.getInt("ImageHeight", DEFAULT_IMAGE_HEIGHT));
+		setImageWidth(myPref.getInt("ImageWidth", DEFAULT_IMAGE_WIDTH));
+		setPDFPageFormat(myPref.get("PDFPageFormat", DEFAULT_PAGE_FORMAT));
+		setLinuxDateFormat(myPref.get("LinuxDateFormat", DEFAULT_LINUX_DATEFORMAT));
+		setUseHostnameInGraphTitle(myPref.getBoolean("UseHostnameInGraphTitle", true));
+		setGraphFont(myPref.get("GraphFontName", DEFAULT_FONT_NAME), 
+				myPref.getInt("GraphFontStyle", DEFAULT_FONT_STYLE),
+				myPref.getInt("GraphFontSize", DEFAULT_FONT_SIZE));
+		
+		setNumber_host_history(myPref.getInt("HostHistory", 0));
+		for (int i = 0; i < getNumber_host_history(); i++) {
+			host_history.add(myPref.get("HostHistory_" + i, null));
+		}
+		setLocal_configfile(myPref.getInt("local_configfile", -1));
+	}
+	
+	public static void save() {
+		if (myPref == null) {
+			return;
+		}
+		myPref.put("landf", landf);
+		if (lastReadDirectory != null) {
+			myPref.put("lastReadDirectory", lastReadDirectory.toString());
+		}
+		if (lastExportDirectory != null) {
+			myPref.put("lastExportDirectory", lastExportDirectory.toString());
+		}
+		
+		myPref.putInt("ImageHeight", ImageHeight);
+		myPref.putInt("ImageWidth", ImageWidth);
+		myPref.put("PDFPageFormat", PDFPageFormat);
+		myPref.put("LinuxDateFormat", LinuxDateFormat);
+		myPref.putBoolean("UseHostnameInGraphTitle", useHostnameInGraphTitle);
+		myPref.put("GraphFontName", graphFont.getName());
+		myPref.putInt("GraphFontStyle", graphFont.getStyle());
+		myPref.putInt("GraphFontSize", graphFont.getSize());
+		
+		for (int i = 0; i < host_history.size(); i++) {
+			myPref.put("HostHistory_" + i, host_history.get(i));
+		}
+		myPref.putInt("HostHistory", host_history.size());
+		
+		myPref.putInt("local_configfile", local_configfile);
+		
+	}
+	
+	public static String getLandf() {
+		return landf;
+	}
+	
+	public static void setLandf(String landf) {
+		Config.landf = landf;
+	}
+	
+	static File getLastReadDirectory() {
+		return lastReadDirectory;
+	}
+	
+	private static void setLastReadDirectory(String lastReadDirectory) {
+		if (lastReadDirectory != null) {
+			Config.lastReadDirectory = new File(lastReadDirectory);
+		}
+	}
+	
+	static void setLastReadDirectory(File lastReadDirectory) {
+		Config.lastReadDirectory = lastReadDirectory;
+	}
+	
+	public static File getLastExportDirectory() {
+		return lastReadDirectory;
+	}
+	
+	public static void setLastExportDirectory(String lastExportDirectory) {
+		if (lastExportDirectory != null) {
+			Config.lastExportDirectory = new File(lastExportDirectory);
+		}
+	}
+	
+	public static void setLastExportDirectory(File lastExportDirectory) {
+		Config.lastExportDirectory = lastExportDirectory;
+	}
+	
+	public static String getLastCommand() {
+		return lastCommand;
+	}
+	
+	public static void setLastCommand(String lastCommand) {
+		Config.lastCommand = lastCommand;
+	}
+	
+	public static ArrayList<String> getHost_history() {
+		return host_history;
+	}
+	
+	public static void addHost_history(String e) {
+		host_history.add(e);
+	}
+	
+	private static int getNumber_host_history() {
+		return number_host_history;
+	}
+	
+	private static void setNumber_host_history(int number_host_history) {
+		Config.number_host_history = number_host_history;
+	}
+	
+	public static Font getDEFAULT_FONT() {
+		return DEFAULT_FONT;
+	}
+	
+	public static int getImageHeight() {
+		return ImageHeight;
+	}
+	
+	public static void setImageHeight(int ImageHeight) {
+		Config.ImageHeight = ImageHeight;
+	}
+	
+	public static int getImageWidth() {
+		return ImageWidth;
+	}
+	
+	public static void setImageWidth(int ImageWidth) {
+		Config.ImageWidth = ImageWidth;
+	}
+	
+	public static String getPDFPageFormat() {
+		return PDFPageFormat;
+	}
+	
+	public static void setPDFPageFormat(String PDFPageFormat) {
+		Config.PDFPageFormat = PDFPageFormat;
+	}
+	
+	
+	private static int store_configdir() {
+		Properties systemprops = System.getProperties();
+		String userhome = (String) systemprops.get("user.home") + systemprops.get("file.separator");
+		String username = (String) systemprops.get("user.name");
+		String fileseparator = (String) systemprops.get("file.separator");
+		// mkdir userhome/.ksar
+		String buffer = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n\n<ConfiG>\n</ConfiG>\n";
+		boolean home = new File(userhome + ".ksarcfg").mkdir();
+		if (!home) {
+			return 0;
+		}
+		
+		BufferedWriter out;
+		try {
+			out =
+					new BufferedWriter(new FileWriter(userhome + ".ksarcfg" + fileseparator + "Config.xml"));
+			out.write(buffer);
+			out.flush();
+			out.close();
+			return 1;
+		} catch (IOException e) {
+			return 0;
+		}
+		
+	}
+	
+	public static int getLocal_configfile() {
+		return local_configfile;
+	}
+	
+	private static void setLocal_configfile(int local_configfile) {
+		Config.local_configfile = local_configfile;
+	}
+	
+	public static String getLinuxDateFormat() {
+		return LinuxDateFormat;
+	}
+	
+	public static void setLinuxDateFormat(String LinuxDateFormat) {
+		Config.LinuxDateFormat = LinuxDateFormat;
+	}
+	
+	public static boolean getUseHostnameInGraphTitle() {
+		return useHostnameInGraphTitle;
+	}
 
-  private static Preferences myPref;
-  private static Config instance = new Config();
+	public static void setUseHostnameInGraphTitle(boolean value) {
+		useHostnameInGraphTitle = value;
+	}
 
-  static Config getInstance() {
-    return instance;
-  }
+	public static Font getGraphFont() {
+		return graphFont;
+	}
 
-  private Config() {
-
-    log.trace("load Config");
-
-    myPref = Preferences.userNodeForPackage(Config.class);
-    if (myPref.getInt("local_configfile", -1) == -1) {
-      // new
-      try {
-        myPref.clear();
-        myPref.flush();
-      } catch (BackingStoreException e) {
-        log.error("BackingStoreException", e);
-      }
-      local_configfile = store_configdir();
-      myPref.putInt("local_configfile", local_configfile);
-
-    }
-    load();
-  }
-
-  private static void load() {
-    /*
-    * load default value or stored value
-    */
-    setLandf(myPref.get("landf", UIManager.getLookAndFeel().getName()));
-    setLastReadDirectory(myPref.get("lastReadDirectory", null));
-    setLastExportDirectory(myPref.get("lastExportDirectory", null));
-
-    setImageHeight(myPref.getInt("ImageHeight", 600));
-    setImageWidth(myPref.getInt("ImageWidth", 800));
-    setPDFPageFormat(myPref.get("PDFPageFormat", "A4"));
-    setLinuxDateFormat(myPref.get("LinuxDateFormat", "Always ask"));
-
-    setNumber_host_history(myPref.getInt("HostHistory", 0));
-    for (int i = 0; i < getNumber_host_history(); i++) {
-      host_history.add(myPref.get("HostHistory_" + i, null));
-    }
-    setLocal_configfile(myPref.getInt("local_configfile", -1));
-  }
-
-  public static void save() {
-    if (myPref == null) {
-      return;
-    }
-    myPref.put("landf", landf);
-    if (lastReadDirectory != null) {
-      myPref.put("lastReadDirectory", lastReadDirectory.toString());
-    }
-    if (lastExportDirectory != null) {
-      myPref.put("lastExportDirectory", lastExportDirectory.toString());
-    }
-
-    myPref.putInt("ImageHeight", ImageHeight);
-    myPref.putInt("ImageWidth", ImageWidth);
-    myPref.put("PDFPageFormat", PDFPageFormat);
-    myPref.put("LinuxDateFormat", LinuxDateFormat);
-
-    for (int i = 0; i < host_history.size(); i++) {
-      myPref.put("HostHistory_" + i, host_history.get(i));
-    }
-    myPref.putInt("HostHistory", host_history.size());
-
-    myPref.putInt("local_configfile", local_configfile);
-
-  }
-
-  public static String getLandf() {
-    return landf;
-  }
-
-  public static void setLandf(String landf) {
-    Config.landf = landf;
-  }
-
-  static File getLastReadDirectory() {
-    return lastReadDirectory;
-  }
-
-  private static void setLastReadDirectory(String lastReadDirectory) {
-    if (lastReadDirectory != null) {
-      Config.lastReadDirectory = new File(lastReadDirectory);
-    }
-  }
-
-  static void setLastReadDirectory(File lastReadDirectory) {
-    Config.lastReadDirectory = lastReadDirectory;
-  }
-
-  public static File getLastExportDirectory() {
-    return lastReadDirectory;
-  }
-
-  public static void setLastExportDirectory(String lastExportDirectory) {
-    if (lastExportDirectory != null) {
-      Config.lastExportDirectory = new File(lastExportDirectory);
-    }
-  }
-
-  public static void setLastExportDirectory(File lastExportDirectory) {
-    Config.lastExportDirectory = lastExportDirectory;
-  }
-
-  public static String getLastCommand() {
-    return lastCommand;
-  }
-
-  public static void setLastCommand(String lastCommand) {
-    Config.lastCommand = lastCommand;
-  }
-
-  public static ArrayList<String> getHost_history() {
-    return host_history;
-  }
-
-  public static void addHost_history(String e) {
-    host_history.add(e);
-  }
-
-  private static int getNumber_host_history() {
-    return number_host_history;
-  }
-
-  private static void setNumber_host_history(int number_host_history) {
-    Config.number_host_history = number_host_history;
-  }
-
-  public static Font getDEFAULT_FONT() {
-    return DEFAULT_FONT;
-  }
-
-  public static int getImageHeight() {
-    return ImageHeight;
-  }
-
-  public static void setImageHeight(int ImageHeight) {
-    Config.ImageHeight = ImageHeight;
-  }
-
-  public static int getImageWidth() {
-    return ImageWidth;
-  }
-
-  public static void setImageWidth(int ImageWidth) {
-    Config.ImageWidth = ImageWidth;
-  }
-
-  public static String getPDFPageFormat() {
-    return PDFPageFormat;
-  }
-
-  public static void setPDFPageFormat(String PDFPageFormat) {
-    Config.PDFPageFormat = PDFPageFormat;
-  }
-
-
-  private static int store_configdir() {
-    Properties systemprops = System.getProperties();
-    String userhome = (String) systemprops.get("user.home") + systemprops.get("file.separator");
-    String username = (String) systemprops.get("user.name");
-    String fileseparator = (String) systemprops.get("file.separator");
-    // mkdir userhome/.ksar
-    String buffer = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n\n<ConfiG>\n</ConfiG>\n";
-    boolean home = new File(userhome + ".ksarcfg").mkdir();
-    if (!home) {
-      return 0;
-    }
-
-    BufferedWriter out;
-    try {
-      out =
-          new BufferedWriter(new FileWriter(userhome + ".ksarcfg" + fileseparator + "Config.xml"));
-      out.write(buffer);
-      out.flush();
-      out.close();
-      return 1;
-    } catch (IOException e) {
-      return 0;
-    }
-
-  }
-
-  public static int getLocal_configfile() {
-    return local_configfile;
-  }
-
-  private static void setLocal_configfile(int local_configfile) {
-    Config.local_configfile = local_configfile;
-  }
-
-  public static String getLinuxDateFormat() {
-    return LinuxDateFormat;
-  }
-
-  public static void setLinuxDateFormat(String LinuxDateFormat) {
-    Config.LinuxDateFormat = LinuxDateFormat;
-  }
-
-
-  private static String landf;
-  private static File lastReadDirectory;
-  private static File lastExportDirectory;
-  private static String lastCommand;
-  private static int number_host_history;
-  private static int local_configfile;
-  private static ArrayList<String> host_history = new ArrayList<>();
-  private static final Font DEFAULT_FONT = new Font("SansSerif", Font.BOLD, 18);
-
-  private static String LinuxDateFormat;
-  private static String PDFPageFormat;
-  private static int ImageWidth;
-  private static int ImageHeight;
-
+	public static void setGraphFont(String name, int style, int size) {
+		graphFont = new Font(name, style, size);
+	}
+	
 }
