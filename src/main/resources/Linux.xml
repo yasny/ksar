@@ -279,15 +279,6 @@
                     <cols>rxkB/s txkB/s</cols>
                     <format base="1024" factor="1024" />
                 </Plot>
-                <!--
-                <Plot Title="compressed/cast">
-                    <cols>rxcmp/s txcmp/s rxmcst/s</cols>
-                </Plot>
-                <Plot Title="util">
-                    <cols>%ifutil</cols>
-                    <range>0,100</range>
-                </Plot>
-                -->
             </Graph>
             <Graph name="INET2" Title="Interfaces error" type="multiple">
                 <Plot Title="Rx">
@@ -523,12 +514,6 @@
                     <cols>%usr %user %nice %sys %iowait %steal %irq %soft %guest</cols>
                     <range>0,100</range>
                 </Stack>
-                <!--
-                <Plot Title="Idle [%]" size="1">
-                    <cols>%idle</cols>
-                    <range>0,100</range>
-                </Plot>
-                -->
             </Graph>
             <Graph name="HPAGE" Title="HugePages" type="unique">
                 <Plot Title="HugePages">
