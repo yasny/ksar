@@ -13,6 +13,7 @@ import java.time.DateTimeException;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public abstract class OSParser extends AllParser {
@@ -134,6 +135,7 @@ public abstract class OSParser extends AllParser {
     this.ostype = ostype;
   }
 
+  @Override
   final public void updateUITitle() {
     if (mysar.getDataView() != null) {
 
@@ -141,11 +143,8 @@ public abstract class OSParser extends AllParser {
       String asFormattedDateTimeEnd = null;
 
       try {
-
-        //Locale test = new Locale(System.getProperty("user.language"), System.getProperty("user.country"));
         DateTimeFormatter formatter =
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT); //.withLocale(test);
-
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM).withLocale(Locale.getDefault());
         if (startofgraph != null) {
           asFormattedDateTimeStart = startofgraph.format(formatter);
         }
@@ -153,11 +152,9 @@ public abstract class OSParser extends AllParser {
           //asFormattedDateTimeEnd = endofgraph.format(DateTimeFormatter.ISO_DATE_TIME);
           asFormattedDateTimeEnd = endofgraph.format(formatter);
         }
-
       } catch (DateTimeException ex) {
         log.error("unable to format time", ex);
       }
-
       if (asFormattedDateTimeStart != null && asFormattedDateTimeEnd != null) {
         mysar.getDataView()
             .setTitle(String.format("%s from %s to %s", Hostname, asFormattedDateTimeStart,
