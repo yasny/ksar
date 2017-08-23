@@ -26,7 +26,7 @@ public class Config {
 	public static final String DEFAULT_PAGE_FORMAT = "A4";
 	public static final String DEFAULT_LINUX_DATEFORMAT = "Always ask";
 	public static final String DEFAULT_FONT_NAME = "SansSerif";
-	public static final int DEFAULT_FONT_STYLE = Font.BOLD;
+	public static final int DEFAULT_FONT_STYLE = Font.PLAIN;
 	public static final int DEFAULT_FONT_SIZE = 18;
 
 	private static final Font DEFAULT_FONT = new Font(DEFAULT_FONT_NAME, DEFAULT_FONT_STYLE, DEFAULT_FONT_SIZE);
