@@ -4,6 +4,7 @@ import java.io.File;
 import javax.swing.JDialog;
 import javax.swing.JProgressBar;
 import net.atomique.ksar.Config;
+import net.atomique.ksar.OSParser;
 import net.atomique.ksar.graph.Graph;
 import net.atomique.ksar.kSar;
 import net.atomique.ksar.ui.SortedTreeNode;
@@ -62,6 +63,8 @@ public class FilePNG implements Runnable {
 
 	private void saveGraphToPNG(Graph graph) {
 		String pngFileName = graph.getTitle().toLowerCase().replace(" ", "-").replaceAll("[()/]", "") + ".png";
+		if (Config.getUseHostnameInGraphTitle())
+			pngFileName = ((OSParser)ksar.myparser).gethostName()+"_"+pngFileName;
 		String savePath = exportPath + File.separator + pngFileName;
 		LOG.debug("Saving graph \"{}\" to {}", graph.getTitle(), savePath);
 		File savePNG = new File(savePath);
